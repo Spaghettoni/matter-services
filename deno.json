@@ -1,0 +1,16 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-env --env-file --watch --allow-net --unstable-cron main.ts"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1"
+  },
+  "deploy": {
+    "project": "bb32adb1-ba93-4521-b371-ecbd57c6b85e",
+    "exclude": [
+      "**/node_modules"
+    ],
+    "include": [],
+    "entrypoint": "main.ts"
+  }
+}
