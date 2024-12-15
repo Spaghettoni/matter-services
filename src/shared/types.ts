@@ -17,6 +17,7 @@ export type AbsenceEntry = {
 export type AirtableAbsence = {
   Name: string | null | undefined;
   "User ID": string | null | undefined;
+  "Record ID": string | null | undefined;
   "Submitted on": string;
   Date: string;
   "Half day": boolean;

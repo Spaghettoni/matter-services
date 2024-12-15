@@ -8,6 +8,10 @@
   "deploy": {
     "project": "bb32adb1-ba93-4521-b371-ecbd57c6b85e",
     "exclude": [
+      "**/node_modules",
+      "**/node_modules",
+      "**/node_modules",
+      "**/node_modules",
       "**/node_modules"
     ],
     "include": [],

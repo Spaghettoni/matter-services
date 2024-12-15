@@ -37,23 +37,37 @@ export async function getEntries<T>(tableId: string): Promise<{ fields: T }[]> {
     throw new Error("Missing table id!");
   }
 
+  let records: Array<{ fields: T }> = [];
   try {
-    const response = await fetch(
-      `https://api.airtable.com/v0/${AIRTABLE_BODY_ID}/${tableId}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${AIRTABLE_PAT}`,
-          "Content-Type": "application/json",
-        },
+    let fetchMore = true;
+    let offset = "";
+    while (fetchMore) {
+      const response = await fetch(
+        `https://api.airtable.com/v0/${AIRTABLE_BODY_ID}/${tableId}${
+          offset ? `?offset=${offset}` : ""
+        }`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${AIRTABLE_PAT}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to read data!");
       }
-    );
 
-    if (!response.ok) {
-      throw new Error("Failed to read data!");
+      const json = await response.json();
+      records = records.concat(json.records as { fields: T }[]);
+
+      if (!json.offset) {
+        fetchMore = false;
+      } else {
+        offset = json.offset;
+      }
     }
-
-    const { records } = await response.json();
     return records;
   } catch (error) {
     console.log(error);
@@ -124,25 +138,35 @@ export async function updateRecord({
 
 export async function linkRecords(
   recordIdsPromise: Promise<string[]>,
-  userId: string
+  userId: string,
+  override = false
 ) {
-  const reportEntries = await getEntries<AirtableAbsenceReport>(
-    ABSENCES_REPORT_TABLE_ID
-  );
-  const recordId = reportEntries.find(
+  const reportEntries = await getReportEntries();
+
+  const userRecord = reportEntries.find(
     ({ fields }) => fields["User ID"] === userId
-  )?.fields["Record ID"];
+  );
+
+  const recordId = userRecord?.fields["Record ID"];
+  const existingLinks =
+    (userRecord?.fields["Linked records"] as string[]) || [];
 
   if (!recordId) {
     throw new Error("Missing record id!");
   }
 
   const recordIds = await recordIdsPromise;
-  
+
   await updateRecord({
     tableId: ABSENCES_REPORT_TABLE_ID,
     recordId,
-    data: { fields: { "Linked records": recordIds } },
+    data: {
+      fields: {
+        "Linked records": override
+          ? recordIds
+          : existingLinks.concat(recordIds),
+      },
+    },
   });
 }
 
@@ -152,4 +176,20 @@ export async function parseWriteResponse<T extends AirtableEntry>(
   const response = await promise;
   const data: WriteEntryResponse<T> = await response.json();
   return data.records.map(({ id }) => id);
+}
+
+export async function resetLinks() {
+  const entries = await getAbsenceEntries();
+
+  const grouped = Object.groupBy(
+    entries,
+    (entry) => entry.fields["User ID"] ?? ""
+  );
+
+  for (const entry of Object.entries(grouped)) {
+    const [userId, records] = entry;
+    const recordIds =
+      records?.map(({ fields }) => fields["Record ID"] ?? "") || [];
+    await linkRecords(recordIds, userId ?? "", true);
+  }
 }

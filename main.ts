@@ -1,10 +1,10 @@
 import { absencesHandler } from "./src/handlers/absences.ts";
 import { getToken } from "./src/shared/utils.ts";
 import dayjs from "dayjs";
-import "./node_modules/dayjs/locale/sk.js";
-import updateLocale from "./node_modules/dayjs/plugin/updateLocale.js";
-import customParseFormat from "./node_modules/dayjs/plugin/customParseFormat.js";
-import { getAbsenceEntries } from "./src/api/airtable.ts";
+import { groupBy } from "lodash";
+import updateLocale from "dayjs/plugin/updateLocale.js";
+import customParseFormat from "dayjs/plugin/customParseFormat.js";
+import { getAbsenceEntries, linkRecords } from "./src/api/airtable.ts";
 import { setCustomStatus } from "./src/api/mattermost.ts";
 
 dayjs.extend(updateLocale);
@@ -33,35 +33,36 @@ dayjs.updateLocale("sk", { weekStart: 1 });
 //   }
 // });
 
-Deno.serve(async (req) => {
-  const authToken = getToken(req.headers);
 
-  console.log("arrived:", req);
-  if (!authToken) {
-    return new Response("Unauthorized", { status: 401 });
-  }
+// Deno.serve(async (req) => {
+//   const authToken = getToken(req.headers);
 
-  const url = new URL(req.url);
+//   console.log("arrived:", req);
+//   if (!authToken) {
+//     return new Response("Unauthorized", { status: 401 });
+//   }
 
-  try {
-    switch (url.pathname) {
-      case "/absence": {
-        const response = await absencesHandler(req, authToken);
-        console.log("response:", response);
-        return response;
-      }
-      case "/remaining-absences": {
-        // return await remainingAbsencesHandler(req, authToken);
-      }
-      case "/lunch":
-      // return await lunchHandler(req);
-    }
+//   const url = new URL(req.url);
 
-    return new Response("Burgers!", {
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    console.error(error);
-    return new Response(`Couldn't parse body; ${error}`, { status: 500 });
-  }
-});
+//   try {
+//     switch (url.pathname) {
+//       case "/absence": {
+//         const response = await absencesHandler(req, authToken);
+//         console.log("response:", response);
+//         return response;
+//       }
+//       case "/remaining-absences": {
+//         // return await remainingAbsencesHandler(req, authToken);
+//       }
+//       case "/lunch":
+//       // return await lunchHandler(req);
+//     }
+
+//     return new Response("Burgers!", {
+//       headers: { "Content-Type": "application/json" },
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return new Response(`Couldn't parse body; ${error}`, { status: 500 });
+//   }
+// });

@@ -30,12 +30,12 @@ export async function absencesHandler(req: Request, authToken: string) {
   } = await parseSlashCommandRequest(req);
 
   if (channel?.toLowerCase() !== CHANNEL_NAME.toLowerCase()) {
-    return new Response(
-      JSON.stringify({
-        text: `Absences are only allowed inside the *${CHANNEL_NAME}* channel!`,
-      }),
-      { headers: { "Content-Type": "application/json" } }
-    );
+    // return new Response(
+    //   JSON.stringify({
+    //     text: `Absences are only allowed inside the *${CHANNEL_NAME}* channel!`,
+    //   }),
+    //   { headers: { "Content-Type": "application/json" } }
+    // );
   }
 
   try {
