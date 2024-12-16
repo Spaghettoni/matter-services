@@ -52,7 +52,6 @@ export async function absencesHandler(req: Request, authToken: string) {
 
     const response = formatResponse({
       text: responseMessage,
-      response_type: "ephemeral",
     });
 
     return new Response(response, {

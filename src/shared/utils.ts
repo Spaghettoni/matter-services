@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { DATE_FORMATS } from "./constants.ts";
+import { DATE_FORMATS, PUBLIC_HOLIDAYS } from "./constants.ts";
 import {
   DateEntry,
   ResponseParams,
@@ -39,7 +39,7 @@ export function parseAbsenceCommand(
 
       const type = /vacation/.test(description)
         ? AbsenceType.VACATION
-        : /sick/.test(description)
+        : /sick|cold|diarrhea|hangover/.test(description)
         ? AbsenceType.SICK_DAY
         : /school/.test(description)
         ? AbsenceType.SCHOOL
@@ -88,22 +88,29 @@ function parseDate(datePart: string): DateEntry[] {
     range.pop();
     for (let i = 0; i < daysTotal - 1; i++) {
       const newDate = dateFrom.date.add(i, "day").add(1, "day");
-      // Is not a weekend
-      if (![0, 6].includes(newDate.day())) {
+
+      if (isWorkDay(newDate)) {
         range.push({ date: newDate, isHalfDay: false });
       }
     }
 
-    if (![0, 6].includes(dateTo.date.day())) {
+    if (isWorkDay(dateTo.date)) {
       range.push(dateTo);
     }
 
-    if ([0, 6].includes(range[0].date.day())) {
+    if (!isWorkDay(range[0].date)) {
       range.shift();
     }
   }
 
   return range;
+}
+
+function isWorkDay(date: dayjs.Dayjs) {
+  return (
+    ![0, 6].includes(date.day()) &&
+    !PUBLIC_HOLIDAYS.includes(date.format("MM-DD"))
+  );
 }
 
 export function formatAbsencesMessage(records: AbsenceEntry[]) {
@@ -128,9 +135,15 @@ export function formatAirtableAbsenceMessage(
 
   const rows = records.map(
     (record) =>
-      `| ${record.fields.Name} | ${record.fields["Submitted on"]} | ${record.fields.Date} | ${
-        record.fields["Half day"] ? ":white_check_mark:" : ":white_large_square:"
-      } | ${record.fields.Type} | ${record.fields.Status} | ${record.fields["Approved by"]} |`
+      `| ${record.fields.Name} | ${record.fields["Submitted on"]} | ${
+        record.fields.Date
+      } | ${
+        record.fields["Half day"]
+          ? ":white_check_mark:"
+          : ":white_large_square:"
+      } | ${record.fields.Type} | ${record.fields.Status} | ${
+        record.fields["Approved by"]
+      } |`
   );
 
   return [header, delimeter, ...rows].join("\n");
@@ -139,12 +152,12 @@ export function formatAirtableAbsenceMessage(
 export function formatReportSummaryMessage(fields?: AirtableAbsenceReport) {
   const summary = `| Summary | |
   | --- | --- |
-  | Total vacations | ${fields?.["Total vacations"]} | 
-  | Total sick days | ${fields?.["Total sick days"]} |
-  | Vacations logged | ${fields?.["Vacations logged"]} |
-  | Sick days logged | ${fields?.["Sick days logged"]} |
-  | Remaining vacations | ${fields?.["Remaining vacations"]} |
-  | Remaining sick days | ${fields?.["Remaining sick days"]} |`;
+  | Total vacations | ${fields?.["Total vacations"] ?? "N/A"} | 
+  | Total sick days | ${fields?.["Total sick days"] ?? "N/A"} |
+  | Vacations logged | ${fields?.["Vacations logged"] ?? "N/A"} |
+  | Sick days logged | ${fields?.["Sick days logged"] ?? "N/A"} |
+  | Remaining vacations | ${fields?.["Remaining vacations"] ?? "N/A"} |
+  | Remaining sick days | ${fields?.["Remaining sick days"] ?? "N/A"} |`;
 
   return summary;
 }

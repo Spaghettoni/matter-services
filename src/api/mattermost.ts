@@ -11,7 +11,11 @@ export async function getUsers() {
 
 export async function setCustomStatus(
   userId: string,
-  data: { emoji: string; text: string }
+  data: {
+    emoji: string;
+    text: string;
+    duration?: "thirty_minutes" | "one_hour" | "four_hours" | "today";
+  }
 ) {
   return await fetch(`${MATTERMOST_URL}/api/v4/users/${userId}/status/custom`, {
     method: "PUT",
