@@ -36,6 +36,7 @@ export type AirtableAbsenceReport = {
   "Vacations logged": number;
   "Sick days logged": number;
   "Remaining vacations": number;
+  "Remaining sick days": number;
 };
 
 export type AirtableEntry = Record<string, unknown>;
@@ -62,4 +63,10 @@ export type WrittenRecord<T extends AirtableEntry> = {
   id: string;
   createdTime: string;
   fields: T;
+};
+
+export type GetEntriesProps = {
+  tableId?: string;
+  filterByFormula?: string;
+  sort?: { field: string; direction: "asc" | "desc" }[];
 };

@@ -9,6 +9,7 @@ import {
   AirtableAbsence,
   AirtableAbsenceReport,
   AirtableEntry,
+  GetEntriesProps,
   UpdateEntryProps,
   WriteEntryResponse,
 } from "../shared/types.ts";
@@ -24,15 +25,25 @@ export function formatWriteRequest(data: AirtableEntry[]) {
   };
 }
 
-export async function getAbsenceEntries() {
-  return await getEntries<AirtableAbsence>(ABSENCES_TABLE_ID);
+export async function getAbsenceEntries(props?: GetEntriesProps) {
+  return await getEntries<AirtableAbsence>({
+    ...props,
+    tableId: ABSENCES_TABLE_ID,
+  });
 }
 
-export async function getReportEntries() {
-  return await getEntries<AirtableAbsenceReport>(ABSENCES_REPORT_TABLE_ID);
+export async function getReportEntries(props?: GetEntriesProps) {
+  return await getEntries<AirtableAbsenceReport>({
+    ...props,
+    tableId: ABSENCES_REPORT_TABLE_ID,
+  });
 }
 
-export async function getEntries<T>(tableId: string): Promise<{ fields: T }[]> {
+export async function getEntries<T>({
+  tableId,
+  filterByFormula,
+  sort,
+}: GetEntriesProps): Promise<{ fields: T }[]> {
   if (!tableId) {
     throw new Error("Missing table id!");
   }
@@ -43,15 +54,18 @@ export async function getEntries<T>(tableId: string): Promise<{ fields: T }[]> {
     let offset = "";
     while (fetchMore) {
       const response = await fetch(
-        `https://api.airtable.com/v0/${AIRTABLE_BODY_ID}/${tableId}${
-          offset ? `?offset=${offset}` : ""
-        }`,
+        `https://api.airtable.com/v0/${AIRTABLE_BODY_ID}/${tableId}/listRecords`,
         {
-          method: "GET",
+          method: "POST",
           headers: {
             Authorization: `Bearer ${AIRTABLE_PAT}`,
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            offset: offset ? offset : undefined,
+            filterByFormula: filterByFormula ? filterByFormula : undefined,
+            sort: sort ? sort : undefined,
+          }),
         }
       );
 
@@ -190,6 +204,6 @@ export async function resetLinks() {
     const [userId, records] = entry;
     const recordIds =
       records?.map(({ fields }) => fields["Record ID"] ?? "") || [];
-    await linkRecords(recordIds, userId ?? "", true);
+    await linkRecords(new Promise(() => recordIds), userId ?? "", true);
   }
 }

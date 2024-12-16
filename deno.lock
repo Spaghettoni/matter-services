@@ -21,9 +21,7 @@
     ],
     "packageJson": {
       "dependencies": [
-        "npm:@types/lodash@^4.17.13",
-        "npm:dayjs@^1.11.13",
-        "npm:lodash@^4.17.21"
+        "npm:dayjs@^1.11.13"
       ]
     }
   }

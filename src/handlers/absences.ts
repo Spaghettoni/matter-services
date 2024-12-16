@@ -1,12 +1,12 @@
 import {
-linkRecords,
+  linkRecords,
   parseWriteResponse,
   writeEntries,
 } from "../api/airtable.ts";
 import { ABSENCES_TOKEN } from "../shared/config.ts";
 import {
   formatResponse,
-  formatResponseMessage,
+  formatAbsencesMessage,
   parseAbsenceCommand,
   parseSlashCommandRequest,
 } from "../shared/utils.ts";
@@ -30,12 +30,12 @@ export async function absencesHandler(req: Request, authToken: string) {
   } = await parseSlashCommandRequest(req);
 
   if (channel?.toLowerCase() !== CHANNEL_NAME.toLowerCase()) {
-    // return new Response(
-    //   JSON.stringify({
-    //     text: `Absences are only allowed inside the *${CHANNEL_NAME}* channel!`,
-    //   }),
-    //   { headers: { "Content-Type": "application/json" } }
-    // );
+    return new Response(
+      JSON.stringify({
+        text: `Absences are only allowed inside the *${CHANNEL_NAME}* channel!`,
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   }
 
   try {
@@ -48,9 +48,12 @@ export async function absencesHandler(req: Request, authToken: string) {
     linkRecords(recordIds, userId);
 
     // send message back
-    const responseMessage = formatResponseMessage(vacations);
+    const responseMessage = formatAbsencesMessage(vacations);
 
-    const response = formatResponse({ text: responseMessage });
+    const response = formatResponse({
+      text: responseMessage,
+      response_type: "ephemeral",
+    });
 
     return new Response(response, {
       headers: { "Content-Type": "application/json" },

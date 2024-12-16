@@ -1,6 +1,12 @@
 import dayjs from "dayjs";
 import { DATE_FORMATS } from "./constants.ts";
-import { DateEntry, ResponseParams, AbsenceEntry } from "./types.ts";
+import {
+  DateEntry,
+  ResponseParams,
+  AbsenceEntry,
+  AirtableAbsenceReport,
+  AirtableAbsence,
+} from "./types.ts";
 import { AbsenceStatus, AbsenceType } from "./enums.ts";
 
 export function getToken(headers: Headers) {
@@ -100,7 +106,7 @@ function parseDate(datePart: string): DateEntry[] {
   return range;
 }
 
-export function formatResponseMessage(records: AbsenceEntry[]) {
+export function formatAbsencesMessage(records: AbsenceEntry[]) {
   const header = `| Name | Submitted on | Date | Half day | Type | Status | Approved by |`;
   const delimeter = `| --- | --- | --- | --- | --- | --- | --- |`;
 
@@ -112,6 +118,35 @@ export function formatResponseMessage(records: AbsenceEntry[]) {
   );
 
   return [header, delimeter, ...rows].join("\n");
+}
+
+export function formatAirtableAbsenceMessage(
+  records: { fields: AirtableAbsence }[]
+) {
+  const header = `| Name | Submitted on | Date | Half day | Type | Status | Approved by |`;
+  const delimeter = `| --- | --- | --- | --- | --- | --- | --- |`;
+
+  const rows = records.map(
+    (record) =>
+      `| ${record.fields.Name} | ${record.fields["Submitted on"]} | ${record.fields.Date} | ${
+        record.fields["Half day"] ? ":white_check_mark:" : ":white_large_square:"
+      } | ${record.fields.Type} | ${record.fields.Status} | ${record.fields["Approved by"]} |`
+  );
+
+  return [header, delimeter, ...rows].join("\n");
+}
+
+export function formatReportSummaryMessage(fields?: AirtableAbsenceReport) {
+  const summary = `| Summary | |
+  | --- | --- |
+  | Total vacations | ${fields?.["Total vacations"]} | 
+  | Total sick days | ${fields?.["Total sick days"]} |
+  | Vacations logged | ${fields?.["Vacations logged"]} |
+  | Sick days logged | ${fields?.["Sick days logged"]} |
+  | Remaining vacations | ${fields?.["Remaining vacations"]} |
+  | Remaining sick days | ${fields?.["Remaining sick days"]} |`;
+
+  return summary;
 }
 
 function parseDayjs(dateStr: string) {

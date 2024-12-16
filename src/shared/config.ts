@@ -1,4 +1,5 @@
 export const ABSENCES_TOKEN = Deno.env.get("ABSENCES_TOKEN") || "";
+export const ABSENCES_REPORT_TOKEN = Deno.env.get("ABSENCES_REPORT_TOKEN") || "";
 export const ABSENCES_BOT_ACCESS_TOKEN = Deno.env.get(
   "ABSENCES_BOT_ACCESS_TOKEN"
 ) || "";
