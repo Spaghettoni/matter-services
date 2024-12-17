@@ -3,7 +3,7 @@ import { getToken } from "./src/shared/utils.ts";
 import dayjs from "dayjs";
 import updateLocale from "dayjs/plugin/updateLocale.js";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
-import { getAbsenceEntries } from "./src/api/airtable.ts";
+import { getAbsenceEntries, getReportEntries } from "./src/api/airtable.ts";
 import { setCustomStatus } from "./src/api/mattermost.ts";
 import { absencesReportHandler } from "./src/handlers/absences-report.ts";
 
@@ -21,7 +21,6 @@ Deno.cron("Vacations scheduler", "0 8 * * *", async () => {
     log(fields.Date, today);
     return fields.Date === today;
   });
-
   // set custom status
   for (const { fields } of currentVacations) {
     log("setting vacation for", fields["User ID"]);

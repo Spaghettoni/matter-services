@@ -6,6 +6,7 @@ import {
 } from "../shared/config.ts";
 import { AIRTABLE_COLUMNS } from "../shared/constants.ts";
 import {
+  AbsenceEntry,
   AirtableAbsence,
   AirtableAbsenceReport,
   AirtableEntry,
@@ -18,7 +19,10 @@ export function formatWriteRequest(data: AirtableEntry[]) {
   return {
     records: data.map((entry) => ({
       fields: Object.entries(entry).reduce(
-        (prev, [key, value]) => ({ ...prev, [AIRTABLE_COLUMNS[key]]: value }),
+        (prev, [key, value]) => ({
+          ...prev,
+          [AIRTABLE_COLUMNS[key as keyof AbsenceEntry]]: value,
+        }),
         {}
       ),
     })),

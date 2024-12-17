@@ -12,6 +12,7 @@ export type AbsenceEntry = {
   type: AbsenceType;
   status: AbsenceStatus;
   approvedBy: string;
+  params: string | null | undefined;
 };
 
 export type AirtableAbsence = {
@@ -24,6 +25,7 @@ export type AirtableAbsence = {
   Type: AbsenceType;
   Status: AbsenceStatus;
   "Approved by": string;
+  Params: string | null | undefined;
 };
 
 export type AirtableAbsenceReport = {

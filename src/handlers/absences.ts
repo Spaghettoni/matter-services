@@ -40,18 +40,24 @@ export async function absencesHandler(req: Request, authToken: string) {
 
   try {
     // parse parameters
-    const vacations = parseAbsenceCommand(params, username, userId);
+    const [vacations, dryRun] = parseAbsenceCommand(
+      params,
+      username,
+      userId
+    );
 
     // write to airtable
-    const writeResponse = writeEntries(vacations);
-    const recordIds = parseWriteResponse(writeResponse);
-    linkRecords(recordIds, userId);
-
+    if (!dryRun) {
+      const writeResponse = writeEntries(vacations);
+      const recordIds = parseWriteResponse(writeResponse);
+      linkRecords(recordIds, userId);
+    }
     // send message back
     const responseMessage = formatAbsencesMessage(vacations);
 
     const response = formatResponse({
       text: responseMessage,
+      response_type: dryRun ? "ephemeral" : "in_channel",
     });
 
     return new Response(response, {

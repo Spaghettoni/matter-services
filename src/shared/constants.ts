@@ -1,3 +1,5 @@
+import { AbsenceEntry, AirtableAbsence } from "./types.ts";
+
 export const DATE_FORMATS = [
   "DD.MM.YYYY",
   "D.M.YYYY",
@@ -7,7 +9,7 @@ export const DATE_FORMATS = [
   "YYYY-MM-DD",
 ];
 
-export const AIRTABLE_COLUMNS: Record<string, string> = {
+export const AIRTABLE_COLUMNS: Record<keyof AbsenceEntry, keyof AirtableAbsence> = {
   name: "Name",
   userId: "User ID",
   submittedOn: "Submitted on",
@@ -16,6 +18,7 @@ export const AIRTABLE_COLUMNS: Record<string, string> = {
   type: "Type",
   status: "Status",
   approvedBy: "Approved by",
+  params: "Params",
 };
 
 // SK PUBLIC HOLIDAYS IN MM-DD FORMAT

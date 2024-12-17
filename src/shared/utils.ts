@@ -18,45 +18,50 @@ export function parseAbsenceCommand(
   params?: string | null,
   username?: string | null,
   userId?: string | null
-): AbsenceEntry[] {
+): [AbsenceEntry[], boolean] {
   if (!params) {
     throw new Error("Missing command parameters!");
   }
+  const [absenceParams, dryOption] = params.split("--");
 
-  const absences = params.split(",");
+  const absences = absenceParams.split(",");
 
-  return absences
-    .map((absence) => {
-      const parts = absence.trim().split(" ");
-      const datePart = parts[0];
+  return [
+    absences
+      .map((absence) => {
+        const parts = absence.trim().split(" ");
+        const datePart = parts[0];
 
-      if (!datePart) {
-        throw new Error("Missing dates!");
-      }
+        if (!datePart) {
+          throw new Error("Missing dates!");
+        }
 
-      const days = parseDate(datePart);
-      const description = parts.slice(1).join("-").toLowerCase();
+        const days = parseDate(datePart);
+        const description = parts.slice(1).join("-").toLowerCase();
 
-      const type = /vacation/.test(description)
-        ? AbsenceType.VACATION
-        : /sick|cold|diarrhea|hangover/.test(description)
-        ? AbsenceType.SICK_DAY
-        : /school/.test(description)
-        ? AbsenceType.SCHOOL
-        : AbsenceType.OTHER;
+        const type = /vacation/.test(description)
+          ? AbsenceType.VACATION
+          : /sick|cold|diarrhea|hangover/.test(description)
+          ? AbsenceType.SICK_DAY
+          : /school/.test(description)
+          ? AbsenceType.SCHOOL
+          : AbsenceType.OTHER;
 
-      return days.map(({ date, isHalfDay }) => ({
-        name: username,
-        userId,
-        submittedOn: dayjs().format("YYYY-MM-DD"),
-        date: date.format("YYYY-MM-DD"),
-        isHalfDay,
-        type,
-        status: AbsenceStatus.APPROVED,
-        approvedBy: "Maroš Noge",
-      }));
-    })
-    .flat();
+        return days.map(({ date, isHalfDay }) => ({
+          name: username,
+          userId,
+          submittedOn: dayjs().format("YYYY-MM-DD"),
+          date: date.format("YYYY-MM-DD"),
+          isHalfDay,
+          type,
+          status: AbsenceStatus.APPROVED,
+          approvedBy: "Maroš Noge",
+          params,
+        }));
+      })
+      .flat(),
+    dryOption === "dry",
+  ] as const;
 }
 
 function parseDate(datePart: string): DateEntry[] {
@@ -114,14 +119,14 @@ function isWorkDay(date: dayjs.Dayjs) {
 }
 
 export function formatAbsencesMessage(records: AbsenceEntry[]) {
-  const header = `| Name | Submitted on | Date | Half day | Type | Status | Approved by |`;
+  const header = `| Name | Submitted on | Date | Half day | Type | Status | Approved by | Params |`;
   const delimeter = `| --- | --- | --- | --- | --- | --- | --- |`;
 
   const rows = records.map(
-    ({ name, submittedOn, date, isHalfDay, type, status, approvedBy }) =>
+    ({ name, submittedOn, date, isHalfDay, type, status, approvedBy, params }) =>
       `| ${name} | ${submittedOn} | ${date} | ${
         isHalfDay ? ":white_check_mark:" : ":white_large_square:"
-      } | ${type} | ${status} | ${approvedBy} |`
+      } | ${type} | ${status} | ${approvedBy} | ${params} |`
   );
 
   return [header, delimeter, ...rows].join("\n");
