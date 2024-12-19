@@ -120,7 +120,7 @@ function isWorkDay(date: dayjs.Dayjs) {
 
 export function formatAbsencesMessage(records: AbsenceEntry[]) {
   const header = `| Name | Submitted on | Date | Half day | Type | Status | Approved by | Params |`;
-  const delimeter = `| --- | --- | --- | --- | --- | --- | --- |`;
+  const delimeter = `| --- | --- | --- | --- | --- | --- | --- | --- |`;
 
   const rows = records.map(
     ({ name, submittedOn, date, isHalfDay, type, status, approvedBy, params }) =>
