@@ -3,9 +3,10 @@ import { getToken } from "./src/shared/utils.ts";
 import dayjs from "dayjs";
 import updateLocale from "dayjs/plugin/updateLocale.js";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
-import { getAbsenceEntries, getReportEntries } from "./src/api/airtable.ts";
+import { getAbsenceEntries } from "./src/api/airtable.ts";
 import { setCustomStatus } from "./src/api/mattermost.ts";
 import { absencesReportHandler } from "./src/handlers/absences-report.ts";
+import { AbsenceType } from "./src/shared/enums.ts";
 
 dayjs.extend(updateLocale);
 dayjs.extend(customParseFormat);
@@ -14,25 +15,23 @@ const { log } = console;
 
 Deno.cron("Vacations scheduler", "0 8 * * *", async () => {
   log("Checking for vacations...");
-  const records = await getAbsenceEntries();
+  const currentVacations = await getAbsenceEntries({filterByFormula: `IS_SAME(Date, NOW(), 'day')`});
   const today = dayjs().format("YYYY-MM-DD");
-  log(records, today);
-  const currentVacations = records.filter(({ fields }) => {
-    log(fields.Date, today);
-    return fields.Date === today;
-  });
+  
   // set custom status
   for (const { fields } of currentVacations) {
     log("setting vacation for", fields["User ID"]);
     if (fields["User ID"]) {
       await setCustomStatus(fields["User ID"], {
-        emoji: "beach_with_umbrella",
+        emoji: fields.Type === AbsenceType.VACATION ? "beach_with_umbrella" : fields.Type === AbsenceType.SCHOOL ? "school" : fields.Type === AbsenceType.SICK_DAY ? "face_with_thermometer" : "question",
         text: `( ͡° ͜ʖ ͡°)`,
+        expires_at: `${today}T20:00:00Z`,
         duration: "today",
       });
     }
   }
 });
+
 
 Deno.serve(async (req) => {
   const authToken = getToken(req.headers);

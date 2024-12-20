@@ -14,6 +14,7 @@ export async function setCustomStatus(
   data: {
     emoji: string;
     text: string;
+    expires_at: string;
     duration?: "thirty_minutes" | "one_hour" | "four_hours" | "today";
   }
 ) {
