@@ -119,14 +119,14 @@ function isWorkDay(date: dayjs.Dayjs) {
 }
 
 export function formatAbsencesMessage(records: AbsenceEntry[]) {
-  const header = `| Name | Submitted on | Date | Half day | Type | Status | Approved by | Params |`;
-  const delimeter = `| --- | --- | --- | --- | --- | --- | --- | --- |`;
+  const header = `| Name | Submitted on | Date | Half day | Type | Status | Approved by |`;
+  const delimeter = `| --- | --- | --- | --- | --- | --- | --- |`;
 
   const rows = records.map(
-    ({ name, submittedOn, date, isHalfDay, type, status, approvedBy, params }) =>
+    ({ name, submittedOn, date, isHalfDay, type, status, approvedBy }) =>
       `| ${name} | ${submittedOn} | ${date} | ${
         isHalfDay ? ":white_check_mark:" : ":white_large_square:"
-      } | ${type} | ${status} | ${approvedBy} | ${params} |`
+      } | ${type} | ${status} | ${approvedBy} |`
   );
 
   return [header, delimeter, ...rows].join("\n");
