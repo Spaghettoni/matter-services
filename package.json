@@ -2,5 +2,5 @@
   "dependencies": {
     "dayjs": "^1.11.13"
   },
-  "version": "0.2.0"
+  "version": "0.2.1"
 }
