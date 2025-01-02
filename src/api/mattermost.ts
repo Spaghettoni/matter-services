@@ -1,7 +1,11 @@
-import { ABSENCES_BOT_ACCESS_TOKEN, MATTERMOST_URL } from "../shared/config.ts";
+import {
+  ABSENCES_BOT_ACCESS_TOKEN,
+  MATTERMOST_URL,
+  UZ_TEAM_MEMBERS_EMAILS,
+} from "../shared/config.ts";
 
 export async function getUsers() {
-  await fetch(`${MATTERMOST_URL}/api/v4/users`, {
+  return await fetch(`${MATTERMOST_URL}/api/v4/users`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${ABSENCES_BOT_ACCESS_TOKEN}`,
@@ -26,4 +30,12 @@ export async function setCustomStatus(
     },
     body: JSON.stringify(data),
   });
+}
+
+export async function getSlovakTeamMembers() {
+  const response = await getUsers();
+  const data = await response.json();
+  return data.filter(
+    (user: { email: string }) => !UZ_TEAM_MEMBERS_EMAILS.includes(user.email)
+  );
 }

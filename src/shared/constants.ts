@@ -25,11 +25,11 @@ export const AIRTABLE_COLUMNS: Record<keyof AbsenceEntry, keyof AirtableAbsence>
 export const PUBLIC_HOLIDAYS = [
   "01-01",
   "01-06",
-  "03-29",
-  "04-01",
+  "04-18",
+  "04-21",
   "05-01",
   "05-08",
-  "06-05",
+  "07-05",
   "08-29",
   "09-15",
   "11-01",
@@ -38,3 +38,20 @@ export const PUBLIC_HOLIDAYS = [
   "12-25",
   "12-26",
 ];
+
+export const PUBLIC_HOLIDAYS_NAMES = [
+  "Day of the Establishment of the Slovak Republic",
+  "Epiphany" ,
+  "Good Friday",
+  "Easter Monday",
+  "Labour Day",
+  "Day of Victory over Fascism",
+  "St. Cyril and Methodius Day",
+  "Slovak National Uprising Day",
+  "Day of the Virgin Mary of the Seven Sorrows",
+  "All Saints Day",
+  "Day of the Fight for Freedom and Democracy",
+  "Christmas Eve",
+  "Christmas Day",
+  "St. Stephen's Day",
+]

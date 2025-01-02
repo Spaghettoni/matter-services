@@ -10,3 +10,5 @@ export const ABSENCES_TABLE_ID = Deno.env.get("ABSENCES_TABLE_ID") || "";
 export const ABSENCES_REPORT_TABLE_ID = Deno.env.get("ABSENCES_REPORT_TABLE_ID") || ""; 
 
 export const MATTERMOST_URL = Deno.env.get("MATTERMOST_URL") || "http://localhost:8065"; 
+
+export const UZ_TEAM_MEMBERS_EMAILS = (Deno.env.get("UZ_TEAM_MEMBERS_EMAILS") || "").split(","); 
